@@ -1,4 +1,4 @@
-# Proposal-Generator
+# Proposal Generator
  Uses an AI model to generate Business Proposals at the user's request
 
 #How to run the program

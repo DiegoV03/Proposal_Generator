@@ -3,7 +3,8 @@
 
 #How to run the program
 
-First, Open 2 instances of the command prompt
+First, make an account at https://cohere.com/ and create an API key
+Next, Open 2 instances of the command prompt
 
 #Running the Backend
 
@@ -14,6 +15,8 @@ First, Open 2 instances of the command prompt
 3.) To activate the virtual environment run 'venv\Scripts\activate'
 
 4.) Now to download all the required libraries, run the command 'pip install -r requirements.txt'
+
+5.) In main.py, on line 24 where it says "insert_key_here", replace the text with your cohere API key
 
 5.) When that is finished, to finally run the backend, run the command 'uvicorn main:app --reload'
 

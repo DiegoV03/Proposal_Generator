@@ -58,7 +58,7 @@ const ProposalEditor = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, ml: 'auto', mr: 'auto' }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Business Proposal Generator //title
+        Business Proposal Generator
       </Typography>
 
       <Box display="flex" alignItems="center" mb={2}>

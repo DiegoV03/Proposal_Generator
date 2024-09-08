@@ -49,8 +49,6 @@ const ProposalEditor = () => {
     });
   };
   
-  
-
   useEffect(() => {
     if (quillRef.current) {
       const editor = quillRef.current.getEditor();

@@ -1,5 +1,7 @@
 # Proposal Generator
- Uses an AI model to generate Business Proposals at the user's request
+Uses an AI model to generate Business Proposals at the user's request
+
+Ensure that you have both Python and Node.js installed on your device
 
 #How to run the program
 

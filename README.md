@@ -1,5 +1,7 @@
 # Proposal Generator
- Uses an AI model to generate Business Proposals at the user's request
+Uses an AI model to generate Business Proposals at the user's request
+
+Ensure that you have both Python and Node.js installed on your device
 
 #How to run the program
 
@@ -16,7 +18,7 @@ Next, Open 2 instances of the command prompt
 
 4.) Now to download all the required libraries, run the command 'pip install -r requirements.txt'
 
-5.) In main.py, on line 24 where it says "insert_key_here", replace the text with your cohere API key
+5.) In main.py, on line 24 where it says "INSERT-KEY-HERE", replace the text with your cohere API key
 
 5.) When that is finished, to finally run the backend, run the command 'uvicorn main:app --reload'
 

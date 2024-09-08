@@ -21,7 +21,7 @@ app.add_middleware(
 )
 
 # Cohere API key
-cohere_api_key = "insert_key_here"
+cohere_api_key = "INSERT-KEY-HERE"
 if not cohere_api_key:
     logging.error("Cohere API key is missing or not loaded correctly")
 
@@ -30,26 +30,29 @@ cohere_client = cohere.Client(cohere_api_key)
 
 # Define the proposal request model
 class ProposalRequest(BaseModel):
-    topic: str
     description: str
-
-# Calculates max tokens based on input length. Example logic: Allow fewer tokens if description is very long
-def calculate_max_tokens(description: str, base_max_tokens: int = 500) -> int:
-    description_length = len(description.split())
-    adjusted_max_tokens = min(base_max_tokens, max(50, base_max_tokens - description_length))
-    return adjusted_max_tokens
 
 # Endpoint to generate a proposal
 @app.post("/generate")
 async def generate_proposal(request: ProposalRequest):
     try:
-        max_tokens = calculate_max_tokens(request.description)
+        # Determine if the description is empty or not
+        if not request.description.strip():
+            # Generate a generic business proposal template if description is empty
+            max_tokens = 1500
+            prompt = f"Generate a generic business proposal template under 1000 words."
+        else:
+            # Generate a proposal based on the given description
+            max_tokens = 1500
+            prompt = f"Generate a concise business proposal template under 1000 words. {request.description}"
 
+        # Call Cohere API to generate the proposal
         response = cohere_client.generate(
-            model='command-r-plus', #Specific cohere model used
-            prompt=f"Generate a concise business proposal about {request.topic}. {request.description}",
-            max_tokens=max_tokens
+            model='command-r-plus',
+            max_tokens=max_tokens,
+            prompt=prompt
         )
+
         proposal_text = response.generations[0].text.strip()
 
         return {"proposal": proposal_text}

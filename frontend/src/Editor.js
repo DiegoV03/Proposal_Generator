@@ -1,90 +1,110 @@
-import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Box } from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { Button, Typography, Container, Box, TextField, CircularProgress } from '@mui/material';
 import axios from 'axios';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
 const ProposalEditor = () => {
-    const [proposal, setProposal] = useState("");
-    const [topic, setTopic] = useState(""); // State for topic
-    const [description, setDescription] = useState(""); // State for description
-  
-    const handleTopicChange = (event) => {
-      setTopic(event.target.value);
-    };
-  
-    const handleDescriptionChange = (event) => {
-      setDescription(event.target.value);
-    };
-  
-    const generateProposal = async () => {
-      try {
-        const response = await axios.post('http://127.0.0.1:8000/generate', {
-          topic: topic,
-          description: description
-        });
-        setProposal(response.data.proposal);
-      } catch (error) {
-        console.error("Error generating proposal:", error);
-      }
-    };
-  
-    const copyToClipboard = () => {
-      navigator.clipboard.writeText(proposal).then(() => {
-        alert('Proposal copied to clipboard!');
-      }).catch((error) => {
-        console.error("Error copying to clipboard:", error);
+  const [proposal, setProposal] = useState("");
+  const [description, setDescription] = useState(""); // State for description
+  const [loading, setLoading] = useState(false); // State for loading
+  const quillRef = useRef(null); // Reference for Quill editor
+
+  const handleDescriptionChange = (event) => {
+    setDescription(event.target.value);
+  };
+
+  const handleProposalChange = (content) => {
+    setProposal(content); // Update the proposal state with the rich text content
+  };
+
+  const generateProposal = async () => {
+    setLoading(true); // Set loading to true when generating starts
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/generate', {
+        description: description
       });
-    };
+      // Convert the plain text response to HTML format (if needed)
+      const formattedProposal = response.data.proposal.replace(/\n/g, '<br>');
+      setProposal(formattedProposal);
+    } catch (error) {
+      console.error("Error generating proposal:", error);
+    } finally {
+      setLoading(false); // Set loading to false when generating ends
+    }
+  };
+
+  const copyToClipboard = () => {
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = proposal;
   
-    return (
-      <Container maxWidth="sm" sx={{ mt: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Proposal Generator
-        </Typography>
-        <Box component="form" noValidate sx={{ mb: 2 }}>
-          <TextField
-            label="Enter Topic"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={topic}
-            onChange={handleTopicChange}
-          />
-          <TextField
-            label="Enter Description"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            multiline
-            rows={4}
-            value={description}
-            onChange={handleDescriptionChange}
-          />
-        </Box>
+    // Replace HTML tags with their corresponding text representations
+    let textToCopy = tempElement.innerHTML;
+    textToCopy = textToCopy.replace(/<\/p><p><br><\/p><p>/g, '\n\n').replace(/<\/p><p>/g, '\n').replace(/<p>/g, '').replace(/<\/p>/g, '');
+  
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert('Proposal copied to clipboard!');
+    }).catch((error) => {
+      console.error("Error copying to clipboard:", error);
+    });
+  };
+  
+  
+
+  useEffect(() => {
+    if (quillRef.current) {
+      const editor = quillRef.current.getEditor();
+      editor.root.style.minHeight = '400px';
+      editor.root.style.height = 'auto';
+    }
+  }, [proposal]);
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, ml: 'auto', mr: 'auto' }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Business Proposal Generator
+      </Typography>
+
+      <Box display="flex" alignItems="center" mb={2}>
+        <TextField
+          label="Description"
+          variant="outlined"
+          fullWidth
+          value={description}
+          onChange={handleDescriptionChange}
+          sx={{ mr: 2 }} // Margin right to separate buttons
+          disabled={loading}
+        />
         <Button
           variant="contained"
           color="primary"
           onClick={generateProposal}
-          sx={{ mr: 2 }}
+          sx={{ mr: 2 }} // Margin right to separate buttons
+          disabled={loading} // Disable button while loading
         >
-          Generate Proposal
+          {loading ? <CircularProgress size={24} /> : 'Generate Proposal'}
         </Button>
+
         <Button
           variant="outlined"
           color="secondary"
           onClick={copyToClipboard}
+          disabled={loading} // Disable button while loading
         >
           Copy Proposal
         </Button>
-        {proposal && (
-          <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
-            <Typography variant="h6">Generated Proposal:</Typography>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-              {proposal}
-            </Typography>
-          </Box>
-        )}
-      </Container>
-    );
-  };
-  
-  export default ProposalEditor;
+      </Box>
+
+      <ReactQuill
+        ref={quillRef}
+        value={proposal}
+        onChange={handleProposalChange}
+        theme="snow"
+        style={{ minHeight: '400px', height: 'auto', marginBottom: '20px' }}
+        readOnly={loading} // Make editor read-only while loading
+      />
+    </Container>
+  );
+};
+
+export default ProposalEditor;

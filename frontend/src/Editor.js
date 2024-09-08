@@ -15,30 +15,28 @@ const ProposalEditor = () => {
   };
 
   const handleProposalChange = (content) => {
-    setProposal(content); // Update the proposal state with the rich text content
+    setProposal(content);
   };
 
-  const generateProposal = async () => {
-    setLoading(true); // Set loading to true when generating starts
+  const generateProposal = async () => { //sends request to backend to generate proposal
+    setLoading(true);
     try {
       const response = await axios.post('http://127.0.0.1:8000/generate', {
         description: description
       });
-      // Convert the plain text response to HTML format (if needed)
       const formattedProposal = response.data.proposal.replace(/\n/g, '<br>');
       setProposal(formattedProposal);
     } catch (error) {
       console.error("Error generating proposal:", error);
     } finally {
-      setLoading(false); // Set loading to false when generating ends
+      setLoading(false);
     }
   };
 
-  const copyToClipboard = () => {
+  const copyToClipboard = () => { //allows the proposal to be copied to the clipboard
     const tempElement = document.createElement('div');
     tempElement.innerHTML = proposal;
   
-    // Replace HTML tags with their corresponding text representations
     let textToCopy = tempElement.innerHTML;
     textToCopy = textToCopy.replace(/<\/p><p><br><\/p><p>/g, '\n\n').replace(/<\/p><p>/g, '\n').replace(/<p>/g, '').replace(/<\/p>/g, '');
   
@@ -49,7 +47,7 @@ const ProposalEditor = () => {
     });
   };
   
-  useEffect(() => {
+  useEffect(() => { //allows quill box to grow
     if (quillRef.current) {
       const editor = quillRef.current.getEditor();
       editor.root.style.minHeight = '400px';
@@ -60,46 +58,46 @@ const ProposalEditor = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, ml: 'auto', mr: 'auto' }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Business Proposal Generator
+        Business Proposal Generator //title
       </Typography>
 
       <Box display="flex" alignItems="center" mb={2}>
-        <TextField
+        <TextField //insert description
           label="Description"
           variant="outlined"
           fullWidth
           value={description}
           onChange={handleDescriptionChange}
-          sx={{ mr: 2 }} // Margin right to separate buttons
+          sx={{ mr: 2 }}
           disabled={loading}
         />
-        <Button
+        <Button // Generate button
           variant="contained"
           color="primary"
           onClick={generateProposal}
-          sx={{ mr: 2 }} // Margin right to separate buttons
-          disabled={loading} // Disable button while loading
+          sx={{ mr: 2 }}
+          disabled={loading}
         >
           {loading ? <CircularProgress size={24} /> : 'Generate Proposal'}
         </Button>
 
-        <Button
+        <Button //Copy button
           variant="outlined"
           color="secondary"
           onClick={copyToClipboard}
-          disabled={loading} // Disable button while loading
+          disabled={loading}
         >
           Copy Proposal
         </Button>
       </Box>
 
-      <ReactQuill
+      <ReactQuill //Editable section similar to Word
         ref={quillRef}
         value={proposal}
         onChange={handleProposalChange}
         theme="snow"
         style={{ minHeight: '400px', height: 'auto', marginBottom: '20px' }}
-        readOnly={loading} // Make editor read-only while loading
+        readOnly={loading}
       />
     </Container>
   );
